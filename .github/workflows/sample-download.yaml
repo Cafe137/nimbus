@@ -1,0 +1,19 @@
+name: Sample Download
+on: [workflow_dispatch]
+
+jobs:
+    sample-download:
+        runs-on: self-hosted
+
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - uses: actions/setup-node@v3
+
+            - name: Get node-funder
+              run: npx cafe-tui get-unzip https://github.com/ethersphere/node-funder/archive/refs/heads/main.zip .
+
+            - name: List files
+              run: ls node-funder-main
