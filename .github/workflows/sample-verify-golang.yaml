@@ -1,0 +1,14 @@
+name: Verify Golang
+on: [workflow_dispatch]
+
+jobs:
+    verify-golang:
+        runs-on: self-hosted
+
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - name: Verify golang
+              run: go version
