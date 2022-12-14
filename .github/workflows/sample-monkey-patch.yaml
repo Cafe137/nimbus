@@ -1,0 +1,20 @@
+name: Monkey Patch
+on: [workflow_dispatch]
+
+jobs:
+    monkey-patch:
+        runs-on: self-hosted
+
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - name: Get bee-dashboard
+              run: npx cafe-tui get-unzip https://github.com/ethersphere/bee-dashboard/archive/refs/heads/master.zip .
+
+            - name: Switch to testnet BZZ contract
+              run: npx cafe-tui monkey-patch bee-dashboard-master/src/utils/bzz-abi.ts 0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da 0x2ac3c1d3e24b45c6c310534bc2dd84b5ed576335
+
+            - name: Switch to testnet network ID
+              run: npx cafe-tui monkey-patch bee-dashboard-master/src/utils/rpc.ts 100 5
