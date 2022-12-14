@@ -1,0 +1,40 @@
+name: Desktop Trial
+on: [workflow_dispatch]
+
+jobs:
+    desktop-trial:
+        runs-on: self-hosted
+
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - uses: actions/setup-node@v3
+
+            - name: Update cli
+              run: npm install --global cafe-tui
+
+            - name: Download desktop source
+              run: npx cafe-tui get-unzip https://github.com/ethersphere/swarm-desktop/archive/refs/heads/master.zip .
+
+            - name: Install UI dependencies
+              working-directory: ./swarm-desktop-master/ui
+              run: npm install
+
+            - name: Install desktop dependencies
+              working-directory: ./swarm-desktop-master
+              run: npm install
+
+            - name: Start Xvfb
+              run: Xvfb :1 -screen 0 1024x768x24 &
+
+            - name: Start desktop
+              working-directory: ./swarm-desktop-master
+              run: DISPLAY=:1 NODE_ENV=development npm start &
+
+            - name: Wait for bee to listen
+              run: npx cafe-tui await-port 1633
+
+            - name: Kill desktop
+              run: killall node
