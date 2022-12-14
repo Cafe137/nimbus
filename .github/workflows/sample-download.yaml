@@ -1,8 +1,8 @@
-name: Sample Download
+name: Download
 on: [workflow_dispatch]
 
 jobs:
-    sample-download:
+    download:
         runs-on: self-hosted
 
         strategy:

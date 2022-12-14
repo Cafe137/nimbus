@@ -1,0 +1,20 @@
+name: Set env
+on: [workflow_dispatch]
+
+jobs:
+    set-env:
+        runs-on: self-hosted
+
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - name: Update cli
+              run: npm install --global cafe-tui
+
+            - name: Generate wallet
+              run: npx cafe-tui funder wallet --github >> $GITHUB_ENV
+
+            - name: Print env variable
+              run: echo "${{ env.fundingAddress }}"
