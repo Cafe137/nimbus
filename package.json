@@ -1,0 +1,17 @@
+{
+    "name": "nimbus",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "main": "playbook.js",
+    "scripts": {
+        "start": "node --experimental-modules --es-module-specifier-resolution=node playbook.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cafe-utility": "^4.20.0",
+        "playwright": "^1.28.1"
+    }
+}
