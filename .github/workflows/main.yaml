@@ -1,0 +1,77 @@
+name: Main
+on: [workflow_dispatch]
+
+jobs:
+    main:
+        runs-on: self-hosted
+
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - uses: actions/setup-node@v3
+
+            - name: Update tui
+              run: npm install --global cafe-tui
+
+            - name: Fetch test source
+              run: npx cafe-tui get-unzip https://github.com/Cafe137/nimbus/archive/refs/heads/master.zip .
+
+            - name: Fetch swarm-desktop source
+              run: npx cafe-tui get-unzip https://github.com/ethersphere/swarm-desktop/archive/refs/heads/master.zip .
+
+            - name: Fetch bee-dashboard
+              run: npx cafe-tui get-unzip https://github.com/ethersphere/bee-dashboard/archive/refs/heads/master.zip .
+
+            - name: Switch to testnet BZZ contract
+              working-directory: ./bee-dashboard-master
+              run: npx cafe-tui monkey-patch src/utils/bzz-abi.ts 0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da 0x2ac3c1d3e24b45c6c310534bc2dd84b5ed576335
+
+            - name: Switch to testnet network ID
+              working-directory: ./bee-dashboard-master
+              run: npx cafe-tui monkey-patch src/utils/rpc.ts 100 5
+
+            - name: Build bee-dashboard
+              working-directory: ./bee-dashboard-master
+              run: npm install
+
+            - name: Create bee-dashboard link
+              working-directory: ./bee-dashboard-master
+              run: npm link
+
+            - name: Install UI dependencies
+              working-directory: ./swarm-desktop-master/ui
+              run: npm install
+
+            - name: Link bee-dashboard
+              working-directory: ./swarm-desktop-master/ui
+              run: npm link @ethersphere/bee-dashboard
+
+            - name: Install desktop dependencies
+              working-directory: ./swarm-desktop-master
+              run: npm install
+
+            - name: Start Xvfb
+              run: Xvfb :1 -screen 0 1024x768x24 &
+
+            - name: Start desktop
+              working-directory: ./swarm-desktop-master
+              run: DISPLAY=:1 NODE_ENV=development npm start &
+
+            - name: Wait for bee to listen
+              run: npx cafe-tui await-port 1633
+
+            - name: Wait for desktop to serve dashboard
+              run: npx cafe-tui await-port 3002 dashboard
+
+            - name: Install test dependencies
+              working-directory: ./nimbus-master
+              run: npm install
+
+            - name: Run playwright
+              working-directory: ./nimbus-master
+              run: DISPLAY=:1 npm start
+
+            - name: Kill desktop
+              run: killall node
